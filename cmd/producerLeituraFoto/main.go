@@ -21,7 +21,6 @@ func main() {
 	} else {
 		fmt.Println("Mensagem enviada:", msg.TopicPartition)
 	}
-
 }
 
 func NewKafkaProducer() *kafka.Producer {
