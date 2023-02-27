@@ -1,11 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+	"sicFaceBridge/controllers"
 	"sicFaceBridge/env"
 	"sicFaceBridge/model"
-	"strconv"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
@@ -13,14 +14,15 @@ import (
 func main() {
 	env.CarregaVariaveisDeAmbiente()
 
-	fotos := model.BuscaFotosDeInfratores(1)
+	fotos := model.BuscaFotosParaCompreFace(1)
 
 	deliveryChan := make(chan kafka.Event)
 	producer := NewKafkaProducer()
 
 	for _, foto := range fotos {
-		infrator := strconv.Itoa(int(foto.InfratorId))
-		mensagem := infrator + ";" + foto.Arquivo
+
+		mensagem, err := json.Marshal(foto)
+		controllers.TrataErro(err)
 
 		Publish(mensagem, "teste", producer, nil, deliveryChan)
 		go DeliveryReport(deliveryChan) // async
@@ -49,9 +51,9 @@ func NewKafkaProducer() *kafka.Producer {
 	return p
 }
 
-func Publish(msg string, topic string, producer *kafka.Producer, key []byte, deliveryChan chan kafka.Event) error {
+func Publish(msg []byte, topic string, producer *kafka.Producer, key []byte, deliveryChan chan kafka.Event) error {
 	message := &kafka.Message{
-		Value:          []byte(msg),
+		Value:          msg,
 		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
 		Key:            key,
 	}

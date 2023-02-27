@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	"sicFaceBridge/controllers"
+	"sicFaceBridge/env"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
 func main() {
+	env.CarregaVariaveisDeAmbiente()
 	configMap := &kafka.ConfigMap{
 		"bootstrap.servers": "kafka:9092",
 		"client.id":         "sicFaceBridge",

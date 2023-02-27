@@ -6,13 +6,13 @@ import (
 	"sicFaceBridge/database"
 )
 
-func BuscaFotosDeInfratores(quantidade uint) []Foto {
+func BuscaFotosParaCompreFace(quantidade uint) []Foto {
 	db := database.Connect()
 	defer db.Close()
 
 	var fotos []Foto
 
-	sql := fmt.Sprintf("select tatuagem_id, infrator_id, arquivo from fotos where tipo_foto <> 'perfil' and not compreface limit %d", quantidade)
+	sql := fmt.Sprintf("select tatuagem_id, infrator_id from fotos where tipo_foto <> 'perfil' and not compreface limit %d", quantidade)
 	// and tipo_foto <> 'perfil'
 
 	rows, err := db.Query(sql)
@@ -21,7 +21,7 @@ func BuscaFotosDeInfratores(quantidade uint) []Foto {
 
 		for rows.Next() {
 			var foto Foto
-			if err := rows.Scan(&foto.Id, &foto.InfratorId, &foto.Arquivo); err != nil {
+			if err := rows.Scan(&foto.Id, &foto.InfratorId); err != nil {
 				TrataErro(err)
 			}
 			fotos = append(fotos, foto)

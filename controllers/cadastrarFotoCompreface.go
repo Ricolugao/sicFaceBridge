@@ -1,9 +1,14 @@
 package controllers
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"sicFaceBridge/database"
+	"sicFaceBridge/model"
+	"strconv"
 	"strings"
 )
 
@@ -14,17 +19,23 @@ func CadastraFotoCompreFace(msg []byte) {
 	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
 	// 	return
 	// }
+	fmt.Println(string(msg))
+	var instrucoes model.Foto
+	err := json.Unmarshal(msg, &instrucoes)
+	TrataErro(err)
+	foto := BuscaFotosDeInfratores(int(instrucoes.Id))[0]
+	foto.InfratorId = instrucoes.InfratorId
+	foto.Id = instrucoes.Id
+	// mensagem := strings.Split(string(msg), ";")
 
-	mensagem := strings.Split(string(msg), ";")
+	// foto := mensagem[1]
+	infratorId := strconv.Itoa(foto.InfratorId)
 
-	foto := mensagem[1]
-	infratorId := mensagem[0]
+	fileBase64 := base64.StdEncoding.EncodeToString([]byte(foto.Arquivo))
 
-	// fileBase64 := base64.StdEncoding.EncodeToString([]byte(foto))
-
-	url := "http://192.168.144.17:8000/api/v1/recognition/faces?subject=" + infratorId
+	url := "http://192.168.144.1:8000/api/v1/recognition/faces?subject=" + infratorId
 	method := "POST"
-	payload := strings.NewReader(`{` + "  " + `	"file":"` + foto + `"` + "  " + `  }`)
+	payload := strings.NewReader(`{` + "  " + `	"file":"` + fileBase64 + `"` + "  " + `  }`)
 
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, payload)
@@ -49,6 +60,31 @@ func CadastraFotoCompreFace(msg []byte) {
 		return
 	}
 
-	fmt.Println("retorno: ", []byte(body))
+	fmt.Println("retorno: ", string(body))
 
+}
+
+func BuscaFotosDeInfratores(FotoId int) []model.Foto {
+	db := database.Connect()
+	defer db.Close()
+
+	var fotos []model.Foto
+
+	sql := fmt.Sprintf("select arquivo from fotos where tatuagem_id = %d", FotoId)
+	// and tipo_foto <> 'perfil'
+	rows, err := db.Query(sql)
+	if erro := TrataErro(err); !erro {
+		defer rows.Close()
+
+		for rows.Next() {
+			var foto model.Foto
+			if err := rows.Scan(&foto.Arquivo); err != nil {
+				TrataErro(err)
+			}
+			fotos = append(fotos, foto)
+		}
+
+	}
+
+	return fotos
 }
