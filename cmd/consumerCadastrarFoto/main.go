@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sicFaceBridge/controllers"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
@@ -22,7 +23,9 @@ func main() {
 	for {
 		msg, err := c.ReadMessage(-1)
 		if err == nil {
-			fmt.Println(string(msg.Value), msg.TopicPartition)
+
+			controllers.CadastraFotoCompreFace(msg.Value)
+			// fmt.Println(mensagem[0], msg.TopicPartition)
 		}
 	}
 }

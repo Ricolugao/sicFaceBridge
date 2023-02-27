@@ -3,16 +3,28 @@ package main
 import (
 	"fmt"
 	"log"
+	"sicFaceBridge/env"
+	"sicFaceBridge/model"
+	"strconv"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
 func main() {
+	env.CarregaVariaveisDeAmbiente()
+
+	fotos := model.BuscaFotosDeInfratores(1)
+
 	deliveryChan := make(chan kafka.Event)
 	producer := NewKafkaProducer()
 
-	Publish("transferiu", "teste", producer, []byte("transferecia2"), deliveryChan)
-	go DeliveryReport(deliveryChan) // async
+	for _, foto := range fotos {
+		infrator := strconv.Itoa(int(foto.InfratorId))
+		mensagem := infrator + ";" + foto.Arquivo
+
+		Publish(mensagem, "teste", producer, nil, deliveryChan)
+		go DeliveryReport(deliveryChan) // async
+	}
 
 	e := <-deliveryChan
 	msg := e.(*kafka.Message)
@@ -63,8 +75,4 @@ func DeliveryReport(deliveryChan chan kafka.Event) {
 			}
 		}
 	}
-}
-
-func LerFotosDoBanco() {
-
 }

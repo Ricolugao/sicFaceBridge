@@ -20,4 +20,4 @@ networks:
     rede_sic:
         name: rede_sic
         driver: bridge
-        internal: true
+        external: true
