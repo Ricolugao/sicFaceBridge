@@ -27,7 +27,8 @@ func main() {
 		if err == nil {
 
 			controllers.CadastraFotoCompreFace(msg.Value)
-			// fmt.Println(mensagem[0], msg.TopicPartition)
+
+			fmt.Println("Lido mensagem: ", string(msg.Value), msg.TopicPartition)
 		}
 	}
 }

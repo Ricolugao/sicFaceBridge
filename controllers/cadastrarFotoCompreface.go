@@ -3,27 +3,19 @@ package controllers
 import (
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
-	"sicFaceBridge/database"
 	"sicFaceBridge/model"
 	"strconv"
 	"strings"
 )
 
-func CadastraFotoCompreFace(msg []byte) {
+func CadastraFotoCompreFace(msg []byte) model.Retorno {
 
-	// arquivoBytes, err := io.ReadAll(file)
-	// if err != nil {
-	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 	return
-	// }
-	fmt.Println(string(msg))
 	var instrucoes model.Foto
 	err := json.Unmarshal(msg, &instrucoes)
 	TrataErro(err)
-	foto := BuscaFotosDeInfratores(int(instrucoes.Id))[0]
+	foto := model.BuscaFotosDeInfratores(instrucoes.Id)
 	foto.InfratorId = instrucoes.InfratorId
 	foto.Id = instrucoes.Id
 	// mensagem := strings.Split(string(msg), ";")
@@ -39,52 +31,22 @@ func CadastraFotoCompreFace(msg []byte) {
 
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, payload)
+	TrataErro(err)
 
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("x-api-key", "ca4b55ff-c571-4e13-874b-4e44303e16af")
 
 	res, err := client.Do(req)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
+	TrataErro(err)
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
+	TrataErro(err)
+	var retorno model.Retorno
+	err = json.Unmarshal(body, &retorno)
+	TrataErro(err)
+	if retorno.Code == 0 {
+		model.DefineCompreFaceTrue(foto.Id)
 	}
-
-	fmt.Println("retorno: ", string(body))
-
-}
-
-func BuscaFotosDeInfratores(FotoId int) []model.Foto {
-	db := database.Connect()
-	defer db.Close()
-
-	var fotos []model.Foto
-
-	sql := fmt.Sprintf("select arquivo from fotos where tatuagem_id = %d", FotoId)
-	// and tipo_foto <> 'perfil'
-	rows, err := db.Query(sql)
-	if erro := TrataErro(err); !erro {
-		defer rows.Close()
-
-		for rows.Next() {
-			var foto model.Foto
-			if err := rows.Scan(&foto.Arquivo); err != nil {
-				TrataErro(err)
-			}
-			fotos = append(fotos, foto)
-		}
-
-	}
-
-	return fotos
+	return retorno
 }

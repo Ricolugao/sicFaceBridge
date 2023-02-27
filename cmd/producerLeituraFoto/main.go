@@ -14,7 +14,7 @@ import (
 func main() {
 	env.CarregaVariaveisDeAmbiente()
 
-	fotos := model.BuscaFotosParaCompreFace(1)
+	fotos := model.BuscaFotosParaCompreFace(100)
 
 	deliveryChan := make(chan kafka.Event)
 	producer := NewKafkaProducer()
