@@ -12,7 +12,7 @@ func BuscaFotosParaCompreFace(quantidade uint) []Foto {
 
 	var fotos []Foto
 
-	sql := fmt.Sprintf("select tatuagem_id, infrator_id from fotos where tipo_foto <> 'perfil' and not compreface limit %d", quantidade)
+	sql := fmt.Sprintf("select tatuagem_id, infrator_id from fotos where tipo_foto <> 'perfil' and not face limit %d", quantidade)
 	// and tipo_foto <> 'perfil'
 
 	rows, err := db.Query(sql)

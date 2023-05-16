@@ -13,14 +13,14 @@ func main() {
 	configMap := &kafka.ConfigMap{
 		"bootstrap.servers": "kafka:9092",
 		"client.id":         "sicFaceBridge",
-		"group.id":          "cadastrarFoto",
-		// "auto.offset.reset": "earliest",
+		"group.id":          "cadastrarFoto2",
+		"auto.offset.reset": "earliest",
 	}
 	c, err := kafka.NewConsumer(configMap)
 	if err != nil {
 		fmt.Println("error consumer", err.Error())
 	}
-	topics := []string{"teste"}
+	topics := []string{"paraCompreFace"}
 	c.SubscribeTopics(topics, nil)
 	for {
 		msg, err := c.ReadMessage(-1)

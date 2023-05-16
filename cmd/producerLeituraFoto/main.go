@@ -14,7 +14,7 @@ import (
 func main() {
 	env.CarregaVariaveisDeAmbiente()
 
-	fotos := model.BuscaFotosParaCompreFace(100)
+	fotos := model.BuscaFotosParaCompreFace(100000)
 
 	deliveryChan := make(chan kafka.Event)
 	producer := NewKafkaProducer()
@@ -24,7 +24,7 @@ func main() {
 		mensagem, err := json.Marshal(foto)
 		controllers.TrataErro(err)
 
-		Publish(mensagem, "teste", producer, nil, deliveryChan)
+		Publish(mensagem, "paraCompreFace", producer, nil, deliveryChan)
 		go DeliveryReport(deliveryChan) // async
 	}
 

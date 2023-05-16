@@ -10,6 +10,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+var connection *sql.DB
+
 func Connect() sql.DB {
 	DbUser := os.Getenv("DbUser")
 	DbPassword := os.Getenv("DbPassword")
@@ -36,9 +38,9 @@ func Connect() sql.DB {
 
 	// VefificaConexao(*connection)
 
-	connection.SetConnMaxLifetime(time.Minute * 3)
-	connection.SetMaxOpenConns(10)
-	connection.SetMaxIdleConns(10)
+	connection.SetConnMaxLifetime(time.Second * 5)
+	connection.SetMaxOpenConns(100)
+	connection.SetMaxIdleConns(100)
 	return *connection
 }
 

@@ -7,9 +7,7 @@ func BuscaFotosDeInfratores(FotoId uint) Foto {
 	defer db.Close()
 
 	var foto Foto
-
 	sql := "select arquivo from fotos where tatuagem_id = ?"
-
 	query, err := db.Prepare(sql)
 	if erro := TrataErro(err); !erro {
 		defer query.Close()
@@ -17,6 +15,5 @@ func BuscaFotosDeInfratores(FotoId uint) Foto {
 			TrataErro(err)
 		}
 	}
-
 	return foto
 }

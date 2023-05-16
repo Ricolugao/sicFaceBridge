@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"os"
 	"sicFaceBridge/model"
 	"strconv"
 	"strings"
@@ -25,7 +26,7 @@ func CadastraFotoCompreFace(msg []byte) model.Retorno {
 
 	fileBase64 := base64.StdEncoding.EncodeToString([]byte(foto.Arquivo))
 
-	url := "http://192.168.144.1:8000/api/v1/recognition/faces?subject=" + infratorId
+	url := "http://192.168.0.25:8000/api/v1/recognition/faces?subject=" + infratorId
 	method := "POST"
 	payload := strings.NewReader(`{` + "  " + `	"file":"` + fileBase64 + `"` + "  " + `  }`)
 
@@ -34,7 +35,7 @@ func CadastraFotoCompreFace(msg []byte) model.Retorno {
 	TrataErro(err)
 
 	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("x-api-key", "ca4b55ff-c571-4e13-874b-4e44303e16af")
+	req.Header.Add("x-api-key", os.Getenv("xApiKey"))
 
 	res, err := client.Do(req)
 	TrataErro(err)
